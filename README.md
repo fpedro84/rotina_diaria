@@ -1,6 +1,6 @@
 #RotinaDiária — Plataforma Digital Adaptativa de Rotina Visual
 
-**Projeto Integrador – Engenharia de Computação – UNIVESP Botucatu 2026**
+**Projeto Integrador III – Engenharia de Computação – UNIVESP Botucatu 2026**
 
 Plataforma web para apoio a crianças com Transtorno do Espectro Autista (TEA),
 com foco em rotinas visuais e monitoramento de evolução.
