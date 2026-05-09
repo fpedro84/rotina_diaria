@@ -1,4 +1,4 @@
-# 🧩 RotinaTEA — Plataforma Digital Adaptativa de Rotina Visual
+#RotinaDiária — Plataforma Digital Adaptativa de Rotina Visual
 
 **Projeto Integrador – Engenharia de Computação – UNIVESP Botucatu 2026**
 
@@ -26,7 +26,7 @@ Acesse: **http://localhost:5000**
 
 ---
 
-## 🔑 Acesso demo
+## 🔑 Acesso teste
 
 | Campo | Valor         |
 |-------|---------------|
@@ -56,6 +56,7 @@ tea_plataforma/
 │   └── evolucao.html
 └── static/
     ├── css/style.css
+    └── img
     └── js/main.js
 ```
 
@@ -73,11 +74,9 @@ tea_plataforma/
 
 ---
 
-## 🗄️ Banco de dados (SQLite)
+## 🗄️ Banco de dados
 
 Tabelas: `usuarios`, `criancas`, `rotina_itens`, `registros_evolucao`
-
-Para migrar para PostgreSQL (produção), altere apenas a string de conexão em `database.py`.
 
 ---
 
@@ -86,4 +85,4 @@ Para migrar para PostgreSQL (produção), altere apenas a string de conexão em 
 Anderson Luiz · Breno Rafael · Daniel Amoroso · Edilson Craveiro ·
 Lucas Smith · Marcos Fabrício · Melquizedeque Andrade · Willy Johnson
 
-Tutor: Ricardo Balarin Meneguel — Polo Botucatu (DRP05)
+Orientador: Ricardo Balarin Meneguel — Polo Botucatu (DRP05)
