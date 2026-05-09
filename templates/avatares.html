@@ -1,0 +1,273 @@
+{# avatares.html — macro reutilizável para exibir o avatar correto da criança #}
+
+{% macro avatar_crianca(crianca, classe='', tamanho='normal') %}
+  {% if crianca.foto %}
+    <div class="crianca-avatar foto-avatar {{ classe }} av-{{ tamanho }}">
+      <img src="{{ url_for('static', filename='uploads/' + crianca.foto) }}" alt="{{ crianca.nome }}">
+    </div>
+  {% elif crianca.avatar %}
+    <div class="crianca-avatar svg-avatar {{ classe }} av-{{ tamanho }}" title="{{ crianca.avatar }}">
+      {{ svg_avatar(crianca.avatar) }}
+    </div>
+  {% else %}
+    <div class="crianca-avatar {{ classe }} av-{{ tamanho }}">{{ crianca.nome[0]|upper }}</div>
+  {% endif %}
+{% endmacro %}
+
+{% macro svg_avatar(nome) %}
+  {% if nome == 'dinossauro' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#4ade80"/>
+      <!-- corpo -->
+      <ellipse cx="40" cy="48" rx="16" ry="14" fill="#16a34a"/>
+      <!-- cabeça -->
+      <ellipse cx="52" cy="32" rx="13" ry="11" fill="#16a34a"/>
+      <!-- focinho -->
+      <ellipse cx="62" cy="35" rx="7" ry="5" fill="#15803d"/>
+      <!-- olho -->
+      <circle cx="55" cy="28" r="3" fill="white"/>
+      <circle cx="56" cy="28" r="1.5" fill="#1e293b"/>
+      <!-- narina -->
+      <circle cx="64" cy="34" r="1" fill="#166534"/>
+      <!-- espinhos -->
+      <polygon points="30,36 33,26 36,36" fill="#bbf7d0"/>
+      <polygon points="36,34 39,24 42,34" fill="#bbf7d0"/>
+      <polygon points="24,40 27,30 30,40" fill="#bbf7d0"/>
+      <!-- braços -->
+      <ellipse cx="28" cy="50" rx="5" ry="3" fill="#15803d" transform="rotate(-20,28,50)"/>
+      <!-- pernas -->
+      <rect x="33" y="58" width="7" height="10" rx="3" fill="#15803d"/>
+      <rect x="42" y="58" width="7" height="10" rx="3" fill="#15803d"/>
+      <!-- cauda -->
+      <path d="M24 55 Q10 60 8 52" stroke="#15803d" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </svg>
+  {% elif nome == 'unicornio' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#f9a8d4"/>
+      <!-- corpo -->
+      <ellipse cx="38" cy="52" rx="18" ry="13" fill="white"/>
+      <!-- cabeça -->
+      <ellipse cx="52" cy="33" rx="13" ry="12" fill="white"/>
+      <!-- orelha -->
+      <polygon points="44,24 47,14 50,24" fill="white"/>
+      <polygon points="45,23 47,17 49,23" fill="#f9a8d4"/>
+      <!-- chifre -->
+      <polygon points="54,23 57,8 60,23" fill="#fbbf24"/>
+      <line x1="54" y1="23" x2="60" y2="23" stroke="#f59e0b" stroke-width="1"/>
+      <line x1="55" y1="19" x2="59" y2="19" stroke="#f59e0b" stroke-width="1"/>
+      <line x1="56" y1="15" x2="58" y2="15" stroke="#f59e0b" stroke-width="1"/>
+      <!-- olho -->
+      <ellipse cx="55" cy="32" rx="3" ry="3.5" fill="#1e293b"/>
+      <circle cx="56" cy="31" r="1" fill="white"/>
+      <!-- narina -->
+      <ellipse cx="63" cy="37" rx="1.5" ry="1" fill="#fda4af"/>
+      <!-- crina -->
+      <path d="M44 22 Q38 28 36 36" stroke="#c084fc" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M46 21 Q42 27 41 35" stroke="#fb7185" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M48 20 Q46 26 45 34" stroke="#fbbf24" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- pernas -->
+      <rect x="28" y="60" width="6" height="11" rx="3" fill="white"/>
+      <rect x="37" y="60" width="6" height="11" rx="3" fill="white"/>
+      <!-- cauda -->
+      <path d="M20 55 Q12 62 15 70" stroke="#c084fc" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M20 55 Q10 58 12 66" stroke="#fb7185" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+  {% elif nome == 'cachorro' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#fde68a"/>
+      <!-- corpo -->
+      <ellipse cx="40" cy="52" rx="17" ry="13" fill="#d97706"/>
+      <!-- cabeça -->
+      <ellipse cx="40" cy="34" rx="16" ry="14" fill="#d97706"/>
+      <!-- orelhas -->
+      <ellipse cx="26" cy="30" rx="7" ry="10" fill="#b45309" transform="rotate(-10,26,30)"/>
+      <ellipse cx="54" cy="30" rx="7" ry="10" fill="#b45309" transform="rotate(10,54,30)"/>
+      <!-- focinho -->
+      <ellipse cx="40" cy="40" rx="9" ry="7" fill="#fbbf24"/>
+      <!-- nariz -->
+      <ellipse cx="40" cy="36" rx="4" ry="3" fill="#1e293b"/>
+      <circle cx="39" cy="35" r="1" fill="white"/>
+      <!-- olhos -->
+      <circle cx="33" cy="30" r="4" fill="white"/>
+      <circle cx="47" cy="30" r="4" fill="white"/>
+      <circle cx="34" cy="30" r="2.5" fill="#1e293b"/>
+      <circle cx="48" cy="30" r="2.5" fill="#1e293b"/>
+      <circle cx="34.5" cy="29" r="1" fill="white"/>
+      <circle cx="48.5" cy="29" r="1" fill="white"/>
+      <!-- boca -->
+      <path d="M34 42 Q40 46 46 42" stroke="#92400e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- língua -->
+      <ellipse cx="40" cy="44" rx="4" ry="3" fill="#f87171"/>
+      <!-- patas -->
+      <rect x="28" y="60" width="8" height="10" rx="4" fill="#d97706"/>
+      <rect x="44" y="60" width="8" height="10" rx="4" fill="#d97706"/>
+      <!-- rabo -->
+      <path d="M57 50 Q68 44 66 36" stroke="#b45309" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </svg>
+  {% elif nome == 'gato' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#e0e7ff"/>
+      <!-- corpo -->
+      <ellipse cx="40" cy="53" rx="16" ry="13" fill="#94a3b8"/>
+      <!-- cabeça -->
+      <ellipse cx="40" cy="35" rx="16" ry="14" fill="#94a3b8"/>
+      <!-- orelhas -->
+      <polygon points="26,26 23,12 33,22" fill="#94a3b8"/>
+      <polygon points="54,26 57,12 47,22" fill="#94a3b8"/>
+      <polygon points="27,25 24,14 32,21" fill="#fda4af"/>
+      <polygon points="53,25 56,14 48,21" fill="#fda4af"/>
+      <!-- focinho -->
+      <ellipse cx="40" cy="40" rx="8" ry="6" fill="#cbd5e1"/>
+      <!-- nariz -->
+      <polygon points="40,36 37.5,39 42.5,39" fill="#f9a8d4"/>
+      <!-- bigodes -->
+      <line x1="32" y1="39" x2="20" y2="37" stroke="#475569" stroke-width="1"/>
+      <line x1="32" y1="41" x2="20" y2="42" stroke="#475569" stroke-width="1"/>
+      <line x1="48" y1="39" x2="60" y2="37" stroke="#475569" stroke-width="1"/>
+      <line x1="48" y1="41" x2="60" y2="42" stroke="#475569" stroke-width="1"/>
+      <!-- boca -->
+      <path d="M37 40 Q40 43 43 40" stroke="#475569" stroke-width="1.5" fill="none"/>
+      <!-- olhos -->
+      <ellipse cx="33" cy="31" rx="4" ry="5" fill="#fbbf24"/>
+      <ellipse cx="47" cy="31" rx="4" ry="5" fill="#fbbf24"/>
+      <ellipse cx="33" cy="31" rx="2" ry="4" fill="#1e293b"/>
+      <ellipse cx="47" cy="31" rx="2" ry="4" fill="#1e293b"/>
+      <circle cx="33" cy="29" r="1" fill="white"/>
+      <circle cx="47" cy="29" r="1" fill="white"/>
+      <!-- patas -->
+      <ellipse cx="30" cy="63" rx="6" ry="5" fill="#94a3b8"/>
+      <ellipse cx="50" cy="63" rx="6" ry="5" fill="#94a3b8"/>
+      <!-- rabo -->
+      <path d="M56 58 Q70 50 65 38" stroke="#94a3b8" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </svg>
+  {% elif nome == 'coelho' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#ede9fe"/>
+      <!-- orelhas compridas -->
+      <ellipse cx="32" cy="18" rx="6" ry="14" fill="white"/>
+      <ellipse cx="48" cy="18" rx="6" ry="14" fill="white"/>
+      <ellipse cx="32" cy="18" rx="3.5" ry="11" fill="#fda4af"/>
+      <ellipse cx="48" cy="18" rx="3.5" ry="11" fill="#fda4af"/>
+      <!-- corpo -->
+      <ellipse cx="40" cy="54" rx="17" ry="14" fill="white"/>
+      <!-- cabeça -->
+      <circle cx="40" cy="37" r="15" fill="white"/>
+      <!-- bochechas -->
+      <circle cx="32" cy="41" r="5" fill="#fda4af" opacity=".5"/>
+      <circle cx="48" cy="41" r="5" fill="#fda4af" opacity=".5"/>
+      <!-- nariz -->
+      <polygon points="40,37 37.5,40 42.5,40" fill="#f9a8d4"/>
+      <!-- bigodes -->
+      <line x1="33" y1="39" x2="22" y2="37" stroke="#d1d5db" stroke-width="1"/>
+      <line x1="33" y1="41" x2="22" y2="42" stroke="#d1d5db" stroke-width="1"/>
+      <line x1="47" y1="39" x2="58" y2="37" stroke="#d1d5db" stroke-width="1"/>
+      <line x1="47" y1="41" x2="58" y2="42" stroke="#d1d5db" stroke-width="1"/>
+      <!-- boca -->
+      <path d="M37 41 Q40 44 43 41" stroke="#d1d5db" stroke-width="1.5" fill="none"/>
+      <!-- olhos -->
+      <circle cx="34" cy="33" r="4" fill="#1e293b"/>
+      <circle cx="46" cy="33" r="4" fill="#1e293b"/>
+      <circle cx="35" cy="32" r="1.5" fill="white"/>
+      <circle cx="47" cy="32" r="1.5" fill="white"/>
+      <!-- patinhas -->
+      <ellipse cx="30" cy="64" rx="7" ry="5" fill="white"/>
+      <ellipse cx="50" cy="64" rx="7" ry="5" fill="white"/>
+      <!-- rabinho -->
+      <circle cx="56" cy="56" r="5" fill="white"/>
+    </svg>
+  {% elif nome == 'panda' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#f1f5f9"/>
+      <!-- orelhas -->
+      <circle cx="26" cy="24" r="9" fill="#1e293b"/>
+      <circle cx="54" cy="24" r="9" fill="#1e293b"/>
+      <!-- corpo -->
+      <ellipse cx="40" cy="54" rx="18" ry="14" fill="white"/>
+      <!-- cabeça -->
+      <circle cx="40" cy="37" r="17" fill="white"/>
+      <!-- manchas dos olhos -->
+      <ellipse cx="32" cy="33" rx="7" ry="6" fill="#1e293b"/>
+      <ellipse cx="48" cy="33" rx="7" ry="6" fill="#1e293b"/>
+      <!-- olhos -->
+      <circle cx="32" cy="33" r="3.5" fill="white"/>
+      <circle cx="48" cy="33" r="3.5" fill="white"/>
+      <circle cx="33" cy="33" r="2" fill="#1e293b"/>
+      <circle cx="49" cy="33" r="2" fill="#1e293b"/>
+      <circle cx="33.5" cy="32" r=".8" fill="white"/>
+      <circle cx="49.5" cy="32" r=".8" fill="white"/>
+      <!-- nariz -->
+      <ellipse cx="40" cy="41" rx="4" ry="3" fill="#1e293b"/>
+      <circle cx="39" cy="40" r="1" fill="#475569"/>
+      <!-- boca -->
+      <path d="M36 44 Q40 48 44 44" stroke="#1e293b" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- bochechas -->
+      <circle cx="30" cy="43" r="5" fill="#fda4af" opacity=".4"/>
+      <circle cx="50" cy="43" r="5" fill="#fda4af" opacity=".4"/>
+      <!-- patas -->
+      <ellipse cx="28" cy="63" rx="8" ry="6" fill="#1e293b"/>
+      <ellipse cx="52" cy="63" rx="8" ry="6" fill="#1e293b"/>
+    </svg>
+  {% elif nome == 'leao' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#fef3c7"/>
+      <!-- juba -->
+      <circle cx="40" cy="40" r="24" fill="#d97706"/>
+      <circle cx="40" cy="37" r="18" fill="#fbbf24"/>
+      <!-- orelhas -->
+      <circle cx="26" cy="23" r="6" fill="#fbbf24"/>
+      <circle cx="54" cy="23" r="6" fill="#fbbf24"/>
+      <circle cx="26" cy="23" r="3.5" fill="#fda4af"/>
+      <circle cx="54" cy="23" r="3.5" fill="#fda4af"/>
+      <!-- cabeça -->
+      <circle cx="40" cy="36" r="16" fill="#fbbf24"/>
+      <!-- focinho -->
+      <ellipse cx="40" cy="42" rx="9" ry="7" fill="#fde68a"/>
+      <!-- nariz -->
+      <polygon points="40,38 37,41 43,41" fill="#b45309"/>
+      <!-- bigodes -->
+      <line x1="31" y1="42" x2="20" y2="40" stroke="#92400e" stroke-width="1"/>
+      <line x1="31" y1="44" x2="20" y2="46" stroke="#92400e" stroke-width="1"/>
+      <line x1="49" y1="42" x2="60" y2="40" stroke="#92400e" stroke-width="1"/>
+      <line x1="49" y1="44" x2="60" y2="46" stroke="#92400e" stroke-width="1"/>
+      <!-- boca -->
+      <path d="M36 43 Q40 47 44 43" stroke="#92400e" stroke-width="1.5" fill="none"/>
+      <!-- olhos -->
+      <circle cx="33" cy="32" r="4.5" fill="#92400e"/>
+      <circle cx="47" cy="32" r="4.5" fill="#92400e"/>
+      <circle cx="33" cy="32" r="3" fill="#1e293b"/>
+      <circle cx="47" cy="32" r="3" fill="#1e293b"/>
+      <circle cx="34" cy="31" r="1" fill="white"/>
+      <circle cx="48" cy="31" r="1" fill="white"/>
+    </svg>
+  {% elif nome == 'elefante' %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#dbeafe"/>
+      <!-- orelhas grandes -->
+      <ellipse cx="20" cy="38" rx="12" ry="16" fill="#93c5fd"/>
+      <ellipse cx="60" cy="38" rx="12" ry="16" fill="#93c5fd"/>
+      <!-- corpo -->
+      <ellipse cx="40" cy="54" rx="17" ry="13" fill="#60a5fa"/>
+      <!-- cabeça -->
+      <circle cx="40" cy="36" r="16" fill="#60a5fa"/>
+      <!-- tromba -->
+      <path d="M36 47 Q28 56 32 64" stroke="#3b82f6" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <!-- olhos -->
+      <circle cx="34" cy="31" r="4" fill="white"/>
+      <circle cx="46" cy="31" r="4" fill="white"/>
+      <circle cx="35" cy="31" r="2.5" fill="#1e293b"/>
+      <circle cx="47" cy="31" r="2.5" fill="#1e293b"/>
+      <circle cx="35.5" cy="30" r=".8" fill="white"/>
+      <circle cx="47.5" cy="30" r=".8" fill="white"/>
+      <!-- presas pequenas -->
+      <ellipse cx="44" cy="48" rx="3" ry="5" fill="white" transform="rotate(10,44,48)"/>
+      <!-- patas -->
+      <rect x="28" y="62" width="9" height="9" rx="4" fill="#60a5fa"/>
+      <rect x="43" y="62" width="9" height="9" rx="4" fill="#60a5fa"/>
+    </svg>
+  {% else %}
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="40" fill="#e2e8f0"/>
+      <text x="40" y="50" font-size="32" text-anchor="middle" fill="#94a3b8">?</text>
+    </svg>
+  {% endif %}
+{% endmacro %}

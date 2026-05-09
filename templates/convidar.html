@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Convidar – {{ crianca.nome }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}" class="breadcrumb">← Voltar</a>
+    <h1>👥 Convidar para equipe de {{ crianca.nome }}</h1>
+    <p class="page-subtitle">Compartilhe o acesso com terapeutas, educadores ou outros responsáveis.</p>
+</div>
+
+<div class="form-card">
+    <form method="POST" class="form-styled">
+        <div class="form-group">
+            <label>E-mail da pessoa</label>
+            <input type="email" name="email" required placeholder="terapeuta@exemplo.com">
+            <small class="form-hint">Se a pessoa ainda não tem cadastro, o vínculo será criado automaticamente quando ela se registrar.</small>
+        </div>
+        <div class="form-group">
+            <label>Nível de acesso</label>
+            <select name="papel">
+                <option value="colaborador">Colaborador — pode marcar atividades e editar rotina</option>
+                <option value="visualizador">Visualizador — só visualiza e registra observações</option>
+            </select>
+        </div>
+        <div class="papeis-info">
+            <div class="papel-card">
+                <strong>👁️ Visualizador</strong>
+                <ul>
+                    <li>Ver rotina e progresso</li>
+                    <li>Ver e registrar observações</li>
+                    <li>Ver gráfico de evolução</li>
+                </ul>
+            </div>
+            <div class="papel-card">
+                <strong>✏️ Colaborador</strong>
+                <ul>
+                    <li>Tudo do visualizador</li>
+                    <li>Marcar atividades como concluídas</li>
+                    <li>Adicionar e remover itens da rotina</li>
+                </ul>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Enviar convite</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

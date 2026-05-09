@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Evolução – {{ crianca.nome }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}" class="breadcrumb">← Voltar à Rotina</a>
+    <h1>📈 Evolução de {{ crianca.nome }}</h1>
+    <p class="page-subtitle">Acompanhe o progresso diário das atividades</p>
+</div>
+
+<div class="stats-grid" id="stats-cards">
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value" id="total-dias">–</div>
+        <div class="stat-label">Dias registrados</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="media-pct">–</div>
+        <div class="stat-label">Média de conclusão</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-value" id="melhor-dia">–</div>
+        <div class="stat-label">Melhor dia</div>
+    </div>
+</div>
+
+<div class="chart-card">
+    <h2 class="chart-title">Atividades concluídas por dia (últimos 30 dias)</h2>
+    <div class="chart-container">
+        <canvas id="graficoEvolucao"></canvas>
+    </div>
+</div>
+
+<div class="chart-card">
+    <h2 class="chart-title">Percentual de conclusão diária</h2>
+    <div class="chart-container">
+        <canvas id="graficoPorcentagem"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function carregarEvolucao() {
+    const res = await fetch('/api/evolucao/{{ crianca.id }}');
+    const dados = await res.json();
+
+    if (!dados.length) {
+        document.getElementById('stats-cards').innerHTML =
+            '<p class="empty-msg">Nenhum dado de evolução ainda. Comece marcando atividades na rotina!</p>';
+        return;
+    }
+
+    const labels = dados.map(d => {
+        const [a,m,dia] = d.data.split('-');
+        return `${dia}/${m}`;
+    });
+    const concluidos = dados.map(d => d.concluidos);
+    const totais = dados.map(d => d.total);
+    const porcentagens = dados.map(d => d.total > 0 ? Math.round(d.concluidos / d.total * 100) : 0);
+
+    // Stats
+    const mediaPct = Math.round(porcentagens.reduce((a,b)=>a+b,0)/porcentagens.length);
+    const melhor = Math.max(...porcentagens);
+    document.getElementById('total-dias').textContent = dados.length;
+    document.getElementById('media-pct').textContent = mediaPct + '%';
+    document.getElementById('melhor-dia').textContent = melhor + '%';
+
+    // Gráfico 1: barras
+    new Chart(document.getElementById('graficoEvolucao'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Concluídas',
+                    data: concluidos,
+                    backgroundColor: 'rgba(99, 179, 237, 0.8)',
+                    borderColor: '#4299e1',
+                    borderWidth: 1,
+                    borderRadius: 6
+                },
+                {
+                    label: 'Total',
+                    data: totais,
+                    backgroundColor: 'rgba(237, 137, 54, 0.3)',
+                    borderColor: '#ed8936',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+
+    // Gráfico 2: linha %
+    new Chart(document.getElementById('graficoPorcentagem'), {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Conclusão (%)',
+                data: porcentagens,
+                borderColor: '#48bb78',
+                backgroundColor: 'rgba(72,187,120,0.15)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#38a169',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                y: { beginAtZero: true, max: 100,
+                     ticks: { callback: v => v + '%' } }
+            }
+        }
+    });
+}
+
+carregarEvolucao();
+</script>
+{% endblock %}

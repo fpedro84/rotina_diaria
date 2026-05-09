@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "avatares.html" import avatar_crianca, svg_avatar %}
+{% block title %}Dashboard – Rotina Diária{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Olá, {{ session.usuario_nome }} 👋</h1>
+    <p class="page-subtitle">Gerencie as rotinas das crianças sob seus cuidados</p>
+</div>
+
+{% if criancas %}
+<div class="cards-grid">
+    {% for crianca in criancas %}
+    {% set s = stats[crianca.id] %}
+    {% set pct = ((s.concluidos / s.total * 100)|int) if s.total > 0 else 0 %}
+    <div class="crianca-card">
+        <div class="crianca-card-header">
+            {{ avatar_crianca(crianca) }}
+            <div class="crianca-info">
+                <h2>{{ crianca.nome }}</h2>
+                <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.25rem">
+                    <span class="badge badge-tea">{{ crianca.nivel_tea }}</span>
+                    <span class="crianca-idade">{{ crianca.idade }} anos</span>
+                    {% if crianca.meu_papel != 'dono' %}
+                    <span class="papel-badge papel-{{ crianca.meu_papel }}">{{ crianca.meu_papel }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="progresso-dia">
+            <div class="progresso-label">
+                <span>Hoje</span>
+                <span>{{ s.concluidos }}/{{ s.total }} atividades</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width:{{ pct }}%"></div>
+            </div>
+            <span class="progress-pct">{{ pct }}%</span>
+        </div>
+
+        <div class="crianca-card-actions">
+            <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}" class="btn btn-primary">📋 Ver Rotina</a>
+            <a href="{{ url_for('evolucao', cid=crianca.id) }}" class="btn btn-outline">📈 Evolução</a>
+            {% if crianca.meu_papel == 'dono' or crianca.meu_papel == 'colaborador' %}
+            <a href="{{ url_for('editar_crianca', cid=crianca.id) }}" class="btn btn-ghost">✏️</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <a href="{{ url_for('nova_crianca') }}" class="crianca-card crianca-card-new">
+        <div class="new-card-inner">
+            <span class="new-card-icon">➕</span>
+            <span>Adicionar Criança</span>
+        </div>
+    </a>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">🧒</div>
+    <h2>Nenhuma criança cadastrada ainda</h2>
+    <p>Comece adicionando uma criança ou aguarde um convite de um responsável.</p>
+    <a href="{{ url_for('nova_crianca') }}" class="btn btn-primary">➕ Adicionar Criança</a>
+</div>
+{% endif %}
+{% endblock %}

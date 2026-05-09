@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Novo Item de Rotina – Rotina Diária{% endblock %}
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('perfil_crianca', cid=crianca_id) }}" class="breadcrumb">← Voltar</a>
+    <h1>➕ Novo Item de Rotina</h1>
+</div>
+<div class="form-card">
+    <form method="POST" class="form-styled">
+        <div class="form-group">
+            <label>Ícone</label>
+            <div class="emoji-picker" id="emoji-picker">
+                {% set emojis = ['🌅','☀️','⏰','☕','🦷','🥞','🚿','🎒','📚','🎮','🍽️','💧','🍌','🌙','🍔 ','😴','📖','👕','🏃','🏊‍♂️','🎨','🎵','🛁','🚽','🧸','🏠','🎨','🚌','🍎','💊','🙏','❤️'] %}
+                {% for e in emojis %}
+                <button type="button" class="emoji-btn" onclick="selectEmoji('{{ e }}')">{{ e }}</button>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="icone" id="icone-val" value="⭐">
+            <span id="icone-preview" class="icone-preview">⭐</span>
+        </div>
+        <div class="form-group">
+            <label>Título da atividade</label>
+            <input type="text" name="titulo" required placeholder="Ex: Escovar os dentes">
+        </div>
+        <div class="form-group">
+            <label>Horário (opcional)</label>
+            <input type="time" name="horario">
+        </div>
+        <div class="form-group">
+            <label>Descrição (opcional)</label>
+            <textarea name="descricao" rows="2" placeholder="Detalhes da atividade..."></textarea>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('perfil_crianca', cid=crianca_id) }}" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Adicionar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function selectEmoji(emoji) {
+    document.getElementById('icone-val').value = emoji;
+    document.getElementById('icone-preview').textContent = emoji;
+    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+    event.target.classList.add('selected');
+}
+</script>
+{% endblock %}

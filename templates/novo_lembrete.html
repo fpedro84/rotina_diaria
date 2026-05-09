@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Novo Lembrete – {{ crianca.nome }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}#lembretes" class="breadcrumb">← Voltar</a>
+    <h1>🔔 Novo Lembrete</h1>
+    <p class="page-subtitle">Para <strong>{{ crianca.nome }}</strong> — compromissos, sessões, consultas e eventos especiais</p>
+</div>
+
+<div class="form-card">
+    <form method="POST" class="form-styled">
+
+        <div class="form-group">
+            <label>Título do lembrete</label>
+            <input type="text" name="titulo" required
+                   placeholder="Ex: Sessão de terapia, Consulta médica, Passeio...">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>📅 Data</label>
+                <input type="date" name="data" required id="campo-data">
+            </div>
+            <div class="form-group">
+                <label>🕐 Horário</label>
+                <input type="time" name="horario" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>🔁 Recorrência</label>
+            <div class="recorrencia-grid">
+                {% set opcoes = [
+                    ('nenhuma',  '1×', 'Sem repetição'),
+                    ('semanal',  '📆', 'Toda semana'),
+                    ('quinzenal','📅', 'A cada 2 semanas'),
+                    ('mensal',   '🗓️', 'Todo mês'),
+                ] %}
+                {% for val, icon, label in opcoes %}
+                <label class="recorrencia-option">
+                    <input type="radio" name="recorrencia" value="{{ val }}"
+                           {% if val == 'nenhuma' %}checked{% endif %}
+                           onchange="document.querySelectorAll('.recorrencia-option').forEach(l=>l.classList.remove('selected')); this.closest('.recorrencia-option').classList.add('selected')">
+                    <span class="recorrencia-icon">{{ icon }}</span>
+                    <span class="recorrencia-label">{{ label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Descrição <span class="form-hint-inline">(opcional)</span></label>
+            <textarea name="descricao" rows="3"
+                      placeholder="Local, profissional responsável, instruções especiais..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}#lembretes" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-primary">💾 Salvar lembrete</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// pré-selecionar hoje como data mínima
+const hoje = new Date().toISOString().split('T')[0];
+document.getElementById('campo-data').min = hoje;
+document.getElementById('campo-data').value = hoje;
+
+// marcar visualmente o radio já checado
+document.querySelectorAll('.recorrencia-option input:checked')
+    .forEach(r => r.closest('.recorrencia-option').classList.add('selected'));
+</script>
+{% endblock %}

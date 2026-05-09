@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% from "seletor_avatar.html" import seletor_avatar %}
+{% block title %}Editar {{ crianca.nome }} – Rotina Diária{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}" class="breadcrumb">← Voltar</a>
+    <h1>✏️ Editar {{ crianca.nome }}</h1>
+</div>
+<div class="form-card form-card-wide">
+    <form method="POST" enctype="multipart/form-data" class="form-styled">
+
+        <!-- BLOCO DE IMAGEM -->
+        <div class="imagem-bloco">
+            <!-- foto -->
+            <div class="form-group">
+                <label>📷 Foto <span class="form-hint-inline">(máx. 4 MB)</span></label>
+                <div class="foto-upload-area" id="foto-upload-area"
+                     onclick="document.getElementById('foto-input').click()">
+                    <div class="foto-preview-wrap" id="preview-wrap"
+                         data-saved="{{ '1' if crianca.foto else '' }}"
+                         style="display:{% if crianca.foto %}flex{% else %}none{% endif %}">
+                        <img id="foto-preview"
+                             src="{% if crianca.foto %}{{ url_for('static', filename='uploads/' + crianca.foto) }}{% endif %}"
+                             alt="{{ crianca.nome }}">
+                    </div>
+                    <div class="foto-placeholder" id="foto-placeholder"
+                         style="display:{% if crianca.foto %}none{% else %}flex{% endif %}">
+                        <span class="foto-icon">📷</span>
+                        <span>Clique para alterar</span>
+                        <small>PNG, JPG, WEBP, GIF</small>
+                    </div>
+                </div>
+                <input type="file" id="foto-input" name="foto" accept="image/*"
+                       style="display:none" onchange="previewFoto(this)">
+
+                {% if crianca.foto %}
+                <div class="foto-remover">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remover_foto" value="1" id="remover_foto"
+                               onchange="toggleRemover(this)">
+                        🗑️ Remover foto
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="imagem-ou"><span>ou</span></div>
+
+            <!-- avatar -->
+            <div class="form-group flex1">
+                {{ seletor_avatar(crianca.avatar or '') }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Nome da criança</label>
+            <input type="text" name="nome" required value="{{ crianca.nome }}">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Idade</label>
+                <input type="number" name="idade" min="1" max="18" value="{{ crianca.idade }}">
+            </div>
+            <div class="form-group">
+                <label>Nível do TEA</label>
+                <select name="nivel_tea">
+                    {% for n in ['Não Aplicável','Nível 1','Nível 2','Nível 3'] %}
+                    <option {% if crianca.nivel_tea == n %}selected{% endif %}>{{ n }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Observações</label>
+            <textarea name="observacoes" rows="3">{{ crianca.observacoes }}</textarea>
+        </div>
+        <div class="form-actions">
+            <a href="{{ url_for('perfil_crianca', cid=crianca.id) }}" class="btn btn-outline">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function previewFoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const cb = document.getElementById('remover_foto');
+    if (cb) cb.checked = false;
+    // limpar avatar
+    document.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('selected'));
+    document.querySelector('.avatar-none').classList.add('selected');
+    document.getElementById('avatar-val').value = '';
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById('foto-preview').src = e.target.result;
+        document.getElementById('preview-wrap').style.display = 'flex';
+        document.getElementById('foto-placeholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+function toggleRemover(cb) {
+    const area = document.getElementById('foto-upload-area');
+    if (cb.checked) {
+        area.style.opacity = '.35';
+        area.style.pointerEvents = 'none';
+        document.getElementById('foto-input').value = '';
+    } else {
+        area.style.opacity = '';
+        area.style.pointerEvents = '';
+    }
+}
+</script>
+{% endblock %}

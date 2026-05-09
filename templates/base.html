@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Rotina Diária{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{% if session.usuario_id %}
+<nav class="navbar">
+    <div class="nav-brand">
+        <span class="nav-logo"><img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo"></span>
+        <span class="nav-title">Rotina Diária</span>
+    </div>
+
+    <div class="nav-links" id="nav-links">
+        <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">🏠 Início</a>
+        <a href="{{ url_for('nova_crianca') }}" class="nav-link">➕ Nova Criança</a>
+    </div>
+
+    <div class="nav-user">
+        <span class="perfil-badge perfil-{{ session.usuario_perfil }}">{{ session.usuario_perfil }}</span>
+        <span class="user-nome-text">{{ session.usuario_nome }}</span>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<div class="nav-drawer" id="nav-drawer">
+    <a href="{{ url_for('dashboard') }}" class="drawer-link">🏠 Início</a>
+    <a href="{{ url_for('nova_crianca') }}" class="drawer-link">➕ Nova Criança</a>
+    <div class="drawer-divider"></div>
+    <span class="drawer-user">{{ session.usuario_nome }}</span>
+    <a href="{{ url_for('logout') }}" class="drawer-link danger">🚪 Sair</a>
+</div>
+<div class="nav-overlay" id="nav-overlay" onclick="toggleMenu()"></div>
+{% endif %}
+
+<main class="main-content {% if not session.usuario_id %}full-page{% endif %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="rodape{% if not session.usuario_id %} rodape-auth{% endif %}">
+    <div class="rodape-inner">
+        <div class="rodape-brand">
+            
+            <span class="rodape-nome">Rotina Diária</span>
+            <span class="rodape-versao">v5.0</span>
+        </div>
+        <div class="rodape-desc">
+            Plataforma Digital Adaptativa de Rotina Visual para Crianças
+        </div>
+        <div class="rodape-equipe">
+            <span class="rodape-label">Desenvolvido por</span>
+            Anderson Luiz · Breno Rafael · Daniel Amoroso · Edilson Craveiro ·
+            Lucas Smith · Marcos Fabrício · Melquizedeque Andrade · Willy Johnson
+        </div>
+        <div class="rodape-info">
+            <span>Projeto Integrador III — Engenharia de Computação</span>
+            <span class="rodape-sep">·</span>
+            <span>UNIVESP — Polo Botucatu (DRP05)</span>
+            <span class="rodape-sep">·</span>
+            <span>Orientador: Ricardo Balarin Meneguel</span>
+            <span class="rodape-sep">·</span>
+            <span>2026</span>
+        </div>
+    </div>
+</footer>
+
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,70 @@
+{# seletor_avatar.html — seletor visual de avatares #}
+{% from "avatares.html" import svg_avatar %}
+
+{% macro seletor_avatar(avatar_atual='') %}
+<div class="avatar-selector-wrap">
+  <p class="avatar-selector-label">
+    Escolha um avatar <span class="form-hint-inline">— ou envie uma foto acima</span>
+  </p>
+
+  <input type="hidden" name="avatar" id="avatar-val" value="{{ avatar_atual }}">
+
+  <div class="avatar-grid">
+    {% set opcoes = [
+      ('dinossauro', '🦕 Dinossauro'),
+      ('unicornio',  '🦄 Unicórnio'),
+      ('cachorro',   '🐶 Cachorro'),
+      ('gato',       '🐱 Gato'),
+      ('coelho',     '🐰 Coelho'),
+      ('panda',      '🐼 Panda'),
+      ('leao',       '🦁 Leão'),
+      ('elefante',   '🐘 Elefante'),
+    ] %}
+    {% for key, label in opcoes %}
+    <button type="button"
+            class="avatar-option {% if avatar_atual == key %}selected{% endif %}"
+            data-key="{{ key }}"
+            onclick="selectAvatar('{{ key }}', this)"
+            title="{{ label }}">
+      <div class="avatar-svg-wrap">{{ svg_avatar(key) }}</div>
+      <span class="avatar-name">{{ label.split(' ')[1] }}</span>
+    </button>
+    {% endfor %}
+
+    <!-- opção "nenhum" -->
+    <button type="button"
+            class="avatar-option avatar-none {% if not avatar_atual %}selected{% endif %}"
+            data-key=""
+            onclick="selectAvatar('', this)"
+            title="Sem avatar">
+      <div class="avatar-svg-wrap avatar-none-icon">✕</div>
+      <span class="avatar-name">Nenhum</span>
+    </button>
+  </div>
+</div>
+
+<script>
+function selectAvatar(key, btn) {
+    // desmarcar todos
+    document.querySelectorAll('.avatar-option').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('avatar-val').value = key;
+
+    // se escolheu um avatar, limpar preview de foto
+    if (key) {
+        const input = document.getElementById('foto-input');
+        if (input) input.value = '';
+        const pw = document.getElementById('preview-wrap');
+        const ph = document.getElementById('foto-placeholder');
+        // só ocultar preview se não há foto salva (edição)
+        if (pw && !pw.dataset.saved) {
+            pw.style.display = 'none';
+            if (ph) ph.style.display = 'flex';
+        }
+        // desmarcar "remover foto"
+        const cb = document.getElementById('remover_foto');
+        if (cb) cb.checked = false;
+    }
+}
+</script>
+{% endmacro %}

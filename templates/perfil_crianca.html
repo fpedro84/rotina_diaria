@@ -1,0 +1,516 @@
+{% extends "base.html" %}
+{% from "avatares.html" import avatar_crianca, svg_avatar %}
+{% block title %}{{ crianca.nome }} – Rotina{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('dashboard') }}" class="breadcrumb">← Início</a>
+    <div class="crianca-header">
+        {{ avatar_crianca(crianca, tamanho="grande") }}
+        <div>
+            <h1>{{ crianca.nome }}</h1>
+            <div class="crianca-meta">
+                <span class="badge {% if 'TDAH' in crianca.nivel_tea %}badge-tdah{% else %}badge-tea{% endif %}">
+                            {% if 'TDAH' in crianca.nivel_tea %}⚡{% else %}🧩{% endif %}
+                            {{ crianca.nivel_tea }}</span>
+                <span class="crianca-idade">{{ crianca.idade }} anos</span>
+            </div>
+            {% if crianca.observacoes %}
+            <p class="crianca-obs">{{ crianca.observacoes }}</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('evolucao', cid=crianca.id) }}" class="btn btn-outline">📈 Evolução</a>
+        {% if pode_editar %}
+        <a href="{{ url_for('novo_item_rotina', cid=crianca.id) }}" class="btn btn-primary">➕ Novo Item</a>
+        <a href="{{ url_for('editar_crianca', cid=crianca.id) }}" class="btn btn-ghost">✏️ Editar</a>
+        {% endif %}
+        {% if e_dono %}
+        <a href="{{ url_for('convidar', cid=crianca.id) }}" class="btn btn-ghost">👥 Convidar</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- LAYOUT DE DUAS COLUNAS -->
+<div class="perfil-layout">
+
+    <!-- COLUNA PRINCIPAL: rotina -->
+    <div class="perfil-main">
+        {% if itens %}
+        <section class="rotina-section">
+            <h2 class="section-title">📅 Rotina do Dia — {{ hoje | br_date }}</h2>
+            <div class="rotina-progress-header">
+                <span id="contador-label">Calculando...</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="barra-progresso" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="rotina-lista" id="rotina-lista">
+                {% for item in itens %}
+                {% set conc = status_hoje.get(item.id, 0) %}
+                <div class="rotina-item {% if conc %}concluido{% endif %}" id="item-{{ item.id }}">
+                    <div class="item-icone">{{ item.icone }}</div>
+                    <div class="item-info">
+                        <span class="item-titulo">{{ item.titulo }}</span>
+                        {% if item.horario %}<span class="item-horario">🕐 {{ item.horario }}</span>{% endif %}
+                        {% if item.descricao %}<span class="item-desc">{{ item.descricao }}</span>{% endif %}
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-check {% if conc %}checked{% endif %}"
+                                onclick="toggleAtividade({{ crianca.id }}, {{ item.id }}, this)">
+                            {{ '✅' if conc else '⬜' }}
+                        </button>
+                        {% if pode_editar %}
+                        <form method="POST" action="{{ url_for('excluir_item', iid=item.id) }}"
+                              onsubmit="return confirm('Excluir este item?')">
+                            <button type="submit" class="btn-del">🗑️</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h2>Nenhum item na rotina</h2>
+            <p>Adicione atividades para estruturar o dia de {{ crianca.nome }}.</p>
+            {% if pode_editar %}
+            <a href="{{ url_for('novo_item_rotina', cid=crianca.id) }}" class="btn btn-primary">➕ Adicionar Primeiro Item</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- COLUNA LATERAL: equipe + observações -->
+    <aside class="perfil-aside">
+
+        <!-- EQUIPE -->
+        <section class="aside-card" id="equipe">
+            <h3 class="aside-title">👥 Equipe</h3>
+            <div class="equipe-lista">
+                <!-- responsável -->
+                <div class="equipe-membro">
+                    <div class="membro-avatar">{{ responsavel.nome[0]|upper }}</div>
+                    <div class="membro-info">
+                        <span class="membro-nome">{{ responsavel.nome }}</span>
+                        <span class="perfil-badge perfil-{{ responsavel.perfil }}">{{ responsavel.perfil }}</span>
+                        <span class="papel-badge papel-dono">responsável</span>
+                    </div>
+                </div>
+                {% for m in equipe %}
+                <div class="equipe-membro">
+                    <div class="membro-avatar">{{ m.nome[0]|upper }}</div>
+                    <div class="membro-info">
+                        <span class="membro-nome">{{ m.nome }}</span>
+                        <span class="perfil-badge perfil-{{ m.perfil }}">{{ m.perfil }}</span>
+                        <span class="papel-badge papel-{{ m.papel }}">{{ m.papel }}</span>
+                    </div>
+                    {% if e_dono %}
+                    <form method="POST" action="{{ url_for('remover_vinculo', vid=m.vinculo_id) }}"
+                          onsubmit="return confirm('Remover vínculo?')" style="margin-left:auto">
+                        <button type="submit" class="btn-del" title="Remover">✕</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% for conv in convites_pendentes %}
+                <div class="equipe-membro pendente">
+                    <div class="membro-avatar">✉️</div>
+                    <div class="membro-info">
+                        <span class="membro-nome">{{ conv.email }}</span>
+                        <span class="papel-badge papel-{{ conv.papel }}">{{ conv.papel }}</span>
+                        <span class="badge badge-pendente">aguardando cadastro</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if e_dono %}
+            <a href="{{ url_for('convidar', cid=crianca.id) }}" class="btn btn-outline btn-full mt-1">
+                ➕ Convidar pessoa
+            </a>
+            {% endif %}
+        </section>
+
+        <!-- OBSERVAÇÕES -->
+        <section class="aside-card" id="observacoes">
+            <h3 class="aside-title">📝 Observações da equipe</h3>
+
+            <!-- form nova observação -->
+            <form method="POST" action="{{ url_for('nova_observacao', cid=crianca.id) }}" class="obs-form">
+                <textarea name="texto" rows="3" placeholder="Registre uma observação visível para toda a equipe..." required></textarea>
+                <button type="submit" class="btn btn-primary btn-full">Registrar observação</button>
+            </form>
+
+            <!-- lista de observações -->
+            {% if observacoes %}
+            <div class="obs-lista">
+                {% for o in observacoes %}
+                <div class="obs-item">
+                    <div class="obs-header">
+                        <div class="obs-autor">
+                            <span class="membro-avatar pequeno">{{ o.autor_nome[0]|upper }}</span>
+                            <div>
+                                <span class="obs-nome">{{ o.autor_nome }}</span>
+                                <span class="perfil-badge perfil-{{ o.autor_perfil }}">{{ o.autor_perfil }}</span>
+                            </div>
+                        </div>
+                        <div class="obs-meta">
+                            <span class="obs-data">{{ o.criado_em[:16].replace('T',' ') if 'T' in o.criado_em else o.criado_em[:16] }}</span>
+                            {% if o.usuario_id == session.usuario_id %}
+                            <form method="POST" action="{{ url_for('excluir_observacao', oid=o.id) }}"
+                                  onsubmit="return confirm('Remover observação?')">
+                                <button type="submit" class="btn-del" title="Excluir">🗑️</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="obs-texto">{{ o.texto }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="obs-vazia">Nenhuma observação ainda. Seja o primeiro a registrar!</p>
+            {% endif %}
+        </section>
+
+
+        <!-- LEMBRETES -->
+        <section class="aside-card" id="lembretes">
+            <div class="aside-title-row">
+                <h3 class="aside-title">🔔 Lembretes</h3>
+                <a href="{{ url_for('novo_lembrete', cid=crianca.id) }}" class="btn btn-ghost btn-sm">+ Novo</a>
+            </div>
+
+            {% if lembretes %}
+            <div class="lembretes-lista">
+                {% for l in lembretes %}
+                {% set dias = ((l.data | string) | days_until) %}
+                <div class="lembrete-item {% if l.data == hoje %}lembrete-hoje{% elif dias == 1 %}lembrete-amanha{% endif %}">
+                    <div class="lembrete-data-col">
+                        <span class="lembrete-dia">{{ l.data[8:10] }}/{{ l.data[5:7] }}</span>
+                        <span class="lembrete-hora">{{ l.horario[:5] }}</span>
+                        {% if l.recorrencia != 'nenhuma' %}
+                        <span class="lembrete-recorrencia">🔁</span>
+                        {% endif %}
+                    </div>
+                    <div class="lembrete-info">
+                        <span class="lembrete-titulo">{{ l.titulo }}</span>
+                        {% if l.descricao %}<span class="lembrete-desc">{{ l.descricao }}</span>{% endif %}
+                        <span class="lembrete-autor">por {{ l.criado_por_nome }}</span>
+                    </div>
+                    <div class="lembrete-actions">
+                        <button class="btn-check-lembrete" onclick="concluirLembrete({{ l.id }}, this)" title="Marcar como feito">✓</button>
+                        {% if l.criado_por == session.usuario_id or pode_editar %}
+                        <form method="POST" action="{{ url_for('excluir_lembrete', lid=l.id) }}"
+                              onsubmit="return confirm('Excluir lembrete?')">
+                            <button type="submit" class="btn-del">🗑️</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="obs-vazia">Nenhum lembrete próximo. Adicione consultas, sessões ou eventos.</p>
+            {% endif %}
+
+            {% if lembretes_passados %}
+            <details class="lembretes-passados">
+                <summary>📁 Ver histórico ({{ lembretes_passados|length }})</summary>
+                <div class="lembretes-lista mt-05">
+                    {% for l in lembretes_passados %}
+                    <div class="lembrete-item lembrete-passado">
+                        <div class="lembrete-data-col">
+                            <span class="lembrete-dia">{{ l.data[8:10] }}/{{ l.data[5:7] }}</span>
+                            <span class="lembrete-hora">{{ l.horario[:5] }}</span>
+                        </div>
+                        <div class="lembrete-info">
+                            <span class="lembrete-titulo">{{ l.titulo }}</span>
+                            {% if l.concluido %}<span class="lembrete-concluido-badge">✅ Feito</span>{% endif %}
+                        </div>
+                        {% if l.criado_por == session.usuario_id or pode_editar %}
+                        <form method="POST" action="{{ url_for('excluir_lembrete', lid=l.id) }}"
+                              onsubmit="return confirm('Excluir?')">
+                            <button type="submit" class="btn-del">🗑️</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </details>
+            {% endif %}
+        </section>
+
+    </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const CRIANCA_ID = {{ crianca.id }};
+
+// ── Progresso ────────────────────────────────────────────────────────────────
+function atualizarProgresso() {
+    const itens    = document.querySelectorAll('.rotina-item');
+    const concluidos = document.querySelectorAll('.rotina-item.concluido').length;
+    const total    = itens.length;
+    const pct      = total > 0 ? Math.round(concluidos / total * 100) : 0;
+    const label    = document.getElementById('contador-label');
+    const barra    = document.getElementById('barra-progresso');
+    if (label) label.textContent = `${concluidos} de ${total} atividades concluídas (${pct}%)`;
+    if (barra)  barra.style.width = pct + '%';
+
+    // 🎊 Fogos quando completa 100%
+    if (pct === 100 && total > 0) dispararFogos();
+}
+
+// ── Animação de partículas ───────────────────────────────────────────────────
+const EMOJIS_CONC  = ['⭐','🌟','✨','💫'];
+const EMOJIS_DESC  = ['💨','☁️','😢'];
+
+function getAvatarCenter() {
+    // Tenta localizar o avatar/foto da criança no cabeçalho
+    const av = document.querySelector('.crianca-avatar');
+    if (!av) return null;
+    const r = av.getBoundingClientRect();
+    return {
+        x: r.left + r.width  / 2 + window.scrollX,
+        y: r.top  + r.height / 2 + window.scrollY
+    };
+}
+
+// ── Verifica se o avatar está visível na viewport ───────────────────────────
+function avatarEstaVisivel() {
+    const av = document.querySelector('.crianca-avatar');
+    if (!av) return true;
+    const r   = av.getBoundingClientRect();
+    const vH  = window.innerHeight || document.documentElement.clientHeight;
+    const vW  = window.innerWidth  || document.documentElement.clientWidth;
+    // Considera visível quando pelo menos 50% do avatar está na tela
+    const metadeH = r.height * 0.5;
+    const metadeW = r.width  * 0.5;
+    return (
+        r.top  + metadeH >= 0   &&
+        r.left + metadeW >= 0   &&
+        r.bottom - metadeH <= vH &&
+        r.right  - metadeW <= vW
+    );
+}
+
+// ── Rola suavemente até o avatar e depois chama o callback ───────────────────
+function rolarAteAvatarEntaoFazer(callback) {
+    const av = document.querySelector('.crianca-avatar');
+    if (!av || avatarEstaVisivel()) {
+        // Já visível — executa imediatamente
+        callback();
+        return;
+    }
+
+    // Calcula posição alvo: avatar centralizado verticalmente na viewport
+    const r          = av.getBoundingClientRect();
+    const avatarMeio = r.top + window.scrollY + r.height / 2;
+    const alvo       = Math.max(0, avatarMeio - window.innerHeight / 2);
+
+    // Scroll suave nativo
+    window.scrollTo({ top: alvo, behavior: 'smooth' });
+
+    // Aguarda o scroll terminar antes de lançar partículas
+    // Estimativa conservadora: ~400ms para scroll suave típico
+    const tempoEstimado = Math.min(
+        600,
+        Math.abs(alvo - window.scrollY) * 0.35 + 200
+    );
+    setTimeout(callback, tempoEstimado);
+}
+
+function lancarParticulas(origemEl, concluindo) {
+    // Captura posição de origem ANTES de rolar (relativa à página)
+    const origemRect = origemEl.getBoundingClientRect();
+    const oxPage = origemRect.left + origemRect.width  / 2 + window.scrollX;
+    const oyPage = origemRect.top  + origemRect.height / 2 + window.scrollY;
+
+    const emojis = concluindo ? EMOJIS_CONC : EMOJIS_DESC;
+    const qtd    = concluindo ? 8 : 5;
+
+    rolarAteAvatarEntaoFazer(() => {
+        // Recalcula destino APÓS o scroll (posição pode ter mudado)
+        const dest = getAvatarCenter();
+        if (!dest) return;
+
+        for (let i = 0; i < qtd; i++) {
+            setTimeout(() => criarParticula(oxPage, oyPage, dest, emojis, concluindo, i), i * 90);
+        }
+    });
+}
+
+function criarParticula(ox, oy, dest, emojis, concluindo, idx) {
+    const p = document.createElement('div');
+    p.className = 'particula';
+    p.textContent = emojis[idx % emojis.length];
+
+    // Posição inicial (origem do botão)
+    p.style.left = ox + 'px';
+    p.style.top  = oy + 'px';
+
+    // Tamanho e opacidade aleatórios
+    const size = concluindo ? (18 + Math.random() * 14) : (14 + Math.random() * 10);
+    p.style.fontSize = size + 'px';
+    document.body.appendChild(p);
+
+    // Calcular vetor de deslocamento com um arco natural
+    const dx = dest.x - ox;
+    const dy = dest.y - oy;
+    // Arco: desvio lateral aleatório que some no meio do caminho
+    const arcX = (Math.random() - 0.5) * 120;
+    const arcY = -80 - Math.random() * 80;  // sobe antes de ir
+
+    const duração = concluindo ? (1000 + Math.random() * 400) : (700 + Math.random() * 300);
+
+    // Fase 1: sobe com arco
+    const fase1 = duração * 0.45;
+    const fase2 = duração * 0.55;
+
+    const startX = ox;
+    const startY = oy;
+    const midX   = ox + dx * 0.35 + arcX;
+    const midY   = oy + arcY;
+    const endX   = dest.x;
+    const endY   = dest.y;
+
+    let startTime = null;
+
+    function animar(ts) {
+        if (!startTime) startTime = ts;
+        const elapsed = ts - startTime;
+        let cx, cy, opacity;
+
+        if (elapsed < fase1) {
+            // Bezier quadrático: início → meio
+            const t = elapsed / fase1;
+            const mt = 1 - t;
+            cx = mt * mt * startX + 2 * mt * t * midX + t * t * (midX + (endX - midX) * 0.2);
+            cy = mt * mt * startY + 2 * mt * t * midY + t * t * (midY + (endY - midY) * 0.2);
+            opacity = t;
+        } else if (elapsed < fase1 + fase2) {
+            // Bezier quadrático: meio → destino
+            const t = (elapsed - fase1) / fase2;
+            const mt = 1 - t;
+            const mx2 = midX + (endX - midX) * 0.2;
+            const my2 = midY + (endY - midY) * 0.2;
+            cx = mt * mt * mx2 + 2 * mt * t * ((mx2 + endX) / 2) + t * t * endX;
+            cy = mt * mt * my2 + 2 * mt * t * ((my2 + endY) / 2) + t * t * endY;
+            opacity = 1 - t * 0.3;
+        } else {
+            // Chegou — pulsa o avatar e remove
+            p.remove();
+            pulsarAvatar();
+            return;
+        }
+
+        p.style.left    = cx + 'px';
+        p.style.top     = cy + 'px';
+        p.style.opacity = opacity;
+        p.style.transform = `scale(${0.5 + opacity * 0.8}) rotate(${elapsed * 0.3}deg)`;
+        requestAnimationFrame(animar);
+    }
+    requestAnimationFrame(animar);
+}
+
+// ── Pulsar o avatar ao receber partícula ─────────────────────────────────────
+let pulsarTimeout = null;
+function pulsarAvatar() {
+    const av = document.querySelector('.crianca-avatar');
+    if (!av) return;
+    av.classList.add('avatar-pulsando');
+    clearTimeout(pulsarTimeout);
+    pulsarTimeout = setTimeout(() => av.classList.remove('avatar-pulsando'), 600);
+}
+
+// ── Fogos de artifício ao completar 100% ─────────────────────────────────────
+function dispararFogos() {
+    const av = getAvatarCenter();
+    if (!av) return;
+    const cores = ['🎁','⭐','🌟','🎉','🎊','✨','💥','🏆','🥇','💛','💚','💙','💜'];
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            const p = document.createElement('div');
+            p.className = 'particula';
+            p.textContent = cores[Math.floor(Math.random() * cores.length)];
+            p.style.left    = av.x + 'px';
+            p.style.top     = av.y + 'px';
+            p.style.fontSize = (20 + Math.random() * 18) + 'px';
+            document.body.appendChild(p);
+
+            const angulo = Math.random() * Math.PI * 2;
+            const dist   = 80 + Math.random() * 160;
+            const tx = Math.cos(angulo) * dist;
+            const ty = Math.sin(angulo) * dist - 60;
+            const dur = 700 + Math.random() * 500;
+            let st = null;
+            function fx(ts) {
+                if (!st) st = ts;
+                const t = Math.min((ts - st) / dur, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+                p.style.left    = (av.x + tx * ease) + 'px';
+                p.style.top     = (av.y + ty * ease + t * t * 40) + 'px';
+                p.style.opacity = 1 - t;
+                p.style.transform = `scale(${1.2 - t * 0.8}) rotate(${t * 360}deg)`;
+                if (t < 1) requestAnimationFrame(fx);
+                else p.remove();
+            }
+            requestAnimationFrame(fx);
+        }, i * 60);
+    }
+}
+
+// ── Toggle de atividade ──────────────────────────────────────────────────────
+async function toggleAtividade(criancaId, itemId, btn) {
+    const el   = document.getElementById('item-' + itemId);
+    const conc = !el.classList.contains('concluido');
+    try {
+        const res = await fetch('/api/registrar', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({crianca_id: criancaId, item_id: itemId, concluido: conc})
+        });
+        if (res.ok) {
+            el.classList.toggle('concluido', conc);
+            btn.classList.toggle('checked', conc);
+            btn.textContent = conc ? '✅' : '⬜';
+            // 🚀 Lançar partículas da posição do botão em direção ao avatar
+            lancarParticulas(btn, conc);
+            atualizarProgresso();
+        }
+    } catch(e) { alert('Erro ao salvar. Tente novamente.'); }
+}
+
+document.addEventListener('DOMContentLoaded', atualizarProgresso);
+
+// ── Concluir lembrete ────────────────────────────────────────────────────────
+async function concluirLembrete(lid, btn) {
+    try {
+        const res = await fetch(`/lembretes/${lid}/concluir`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'}
+        });
+        if (res.ok) {
+            lancarParticulas(btn, true);
+            const item = btn.closest('.lembrete-item');
+            setTimeout(() => {
+                item.style.transition = 'opacity .4s, transform .4s';
+                item.style.opacity    = '0';
+                item.style.transform  = 'translateX(20px)';
+                setTimeout(() => {
+                    item.remove();
+                    const lista = document.querySelector('.lembretes-lista');
+                    if (lista && !lista.querySelector('.lembrete-item'))
+                        lista.innerHTML = '<p class="obs-vazia">Todos os lembretes concluídos! 🎉</p>';
+                }, 400);
+            }, 500);
+        }
+    } catch(e) { alert('Erro ao concluir lembrete.'); }
+}
+</script>
+{% endblock %}

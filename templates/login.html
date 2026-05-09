@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Login – Rotina Diária{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo"><img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo"></div>
+            <h1>Rotina Diária</h1>
+            <p>Plataforma de Rotina Visual para Crianças</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required placeholder="••••••">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Entrar</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Não tem conta? <a href="{{ url_for('cadastro') }}">Cadastre-se</a></p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
