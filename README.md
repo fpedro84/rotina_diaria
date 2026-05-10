@@ -40,10 +40,10 @@ Acesse: **http://localhost:5000**
 ```
 tea_plataforma/
 ├── app.py              # Aplicação Flask (rotas)
-├── database.py         # Banco de dados SQLite
+├── database.py         # Banco de dados
 ├── requirements.txt
 ├── instance/
-│   └── tea.db          # Banco de dados (gerado automaticamente)
+│   └── tea.db          
 ├── templates/
 │   ├── base.html
 │   ├── login.html
